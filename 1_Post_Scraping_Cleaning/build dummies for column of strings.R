@@ -27,3 +27,15 @@ for(row in 1:nrow(df)){             # loop through rows
   }
 }
 df
+
+##############################################
+
+test <- data.frame(col = c('a; ff; cc; rr;', 'rr; a; cc; e; ff'))
+test
+
+# Base R:
+x   <- strsplit(as.character(test$col), ";\\s?") # split the strings
+lvl <- unique(unlist(x))                         # get unique elements
+x   <- lapply(x, factor, levels = lvl)           # convert to factor
+t(sapply(x, table))    
+
