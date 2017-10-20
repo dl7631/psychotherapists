@@ -22,9 +22,92 @@ dim(md)    # 14,304 by 35
 # names(md)
 # head(md)
 
+
+#-----------------------------------------------------------------------
+# Defining a function that checks if each
+# string in a vector contains an element with a "bad" substring in it.
+# If it does, that whole substring is replaced with newstring:
+library(stringr)
+string_replace = function(strings_vector, badstring, newstring){
+  with_string <- grepl(badstring, strings_vector)
+  mysplits <- str_split(string = strings_vector[with_string], pattern = ', ')
+  for (i in 1:length(mysplits)) {
+    allstrings <- mysplits[[i]]
+    for (ii in 1:length(allstrings)) {
+      if (grepl(badstring, allstrings[ii])) mysplits[[i]][ii] <- newstring
+    }
+  }
+  for (i in seq_along(mysplits)) { # i = 1
+    mysplits[[i]] <- paste(mysplits[[i]], collapse = ", ")
+  }
+  strings_vector[with_string] <- unlist(mysplits)
+  return(strings_vector)
+}
+#-----------------------------------------------------------------------
+#
+# Replace certain characters in approaches
+library(stringr)
+
+md$approaches <- str_replace_all(md$approaches, 'appr_10001', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10005', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10011', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10012', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10013', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10018', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10025', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10026', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10027', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10038', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10039', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_10040', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_11021', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_11022', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_11023', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_11208', '')
+md$approaches <- str_replace_all(md$approaches, 'appr_11209', '')
+
+md$approaches <- str_replace_all(md$approaches, ';_', ', ')
+md$approaches <- str_replace_all(md$approaches, '; ', ', ')
+md$approaches <- str_replace_all(md$approaches, "12_step", "appr_12_steps")
+md$approaches <- str_replace_all(md$approaches, '_&_', '_')
+md$approaches <- str_replace_all(md$approaches, '&', '_and_')
+md$approaches <- str_replace_all(md$approaches, ',_', ', ')
+md$approaches <- str_replace_all(md$approaches, ':', '_')
+md$approaches <- str_replace_all(md$approaches, 'xNotListed', 'appr_NotListed')
+md$approaches <- str_replace_all(md$approaches, ';$', '')
+md$approaches <- str_replace_all(md$approaches, ',$', '')
+
+md$approaches <- str_replace_all(md$approaches, 'act', 'appr_act')
+md$approaches <- str_replace_all(md$approaches, 'acupressure', 'appr_acupressure')
+md$approaches <- str_replace_all(md$approaches, 'adhd', 'appr_adhd')
+md$approaches <- str_replace_all(md$approaches, 'adolescent_and_adult_treatment', 'appr_teens')
+md$approaches <- str_replace_all(md$approaches, 'aedp', 'appr_aedp')
+md$approaches <- str_replace_all(md$approaches, 'afot', 'appr_afot')
+md$approaches <- str_replace_all(md$approaches, 'age_regression', 'appr_age_regression')
+md$approaches <- str_replace_all(md$approaches, 'alpha_stim', 'appr_alpha_stim')
+md$approaches <- str_replace_all(md$approaches, 'and_cbt_used_to_manage_symptoms', 'appr_cbt')
+md$approaches <- str_replace_all(md$approaches, 'and_entrepreneur_coaching', 'appr_coaching')
+md$approaches <- str_replace_all(md$approaches, 'anxiety_disorders', 'appr_anxiety')
+md$approaches <- str_replace_all(md$approaches, 'anxiety_phobia_relief', 'appr_anxiety')
+
+badstrings <- c('ask_receive','becoming_badass','bereavement','bionian','board_certified','breathing_techniques','business','cam','career_counseling','caregiving','carl_rogers','certified','chronic_illness','co_active_coaching','counseling_for_women','couples_children','customized_to_the_client','dbt','death_and_bereavement_work','decision_making','deep_relaxation','depression','developed_by_david_burns','developmental_issues','diplomat_act','dream_work','dying_bereavement_counselor','eating_disorde','eating_disorders,weight_problems','eclectic','eft','ego_state_therapy','emotionally_focused_therapy_for_couples','employee_assistance','energy_focused_treatment','etc','existential','experiential','expert_witness','family_therapy','fertility_issues','floortime','focusing','former_patients,and','fsap','growth_oriented_treatment_informed_by','habit_control','harm_reduction','home_school_behavior_mgmt','humanistic','iep','ifs','inc_parenting','internal_family_systems','interpersonal','it_is_hard_to','lcsw','lifestyle_wellness','md','meditation','memory','mind_body_focus','mindfulness_and_meditation','motivation','moving_forward','music','network_therapy','nlp','nutrition','object_relations_human_needs_psychology','oppositional_defiant_tx','organizational_consulting','oriental_medicine_herbs','panic_disorders','pastoral','plant_spirit_medicine','play','positive_psychology','post_treatment','prolonged_exposure_therapy','psycho_spiritual','psychoeducation','ptsd','ptt','realizational','reiki','revenue_your_life','ritualistic_abuse','rosen_method','sensorimotor_psychotherapy','sex_addiction','sexism','sexual_abuse_trauma','short_term_psychodynamic','skype_for_housebound_client','smoking_cesation','sociometry_group_psychotherapy','spiritual_life_coaching','spiritually_oriented','stress_reduction','supportive','systems_theory','talk','tension_headaches','test_anxiety','tft,energy_psychotherapies','therapy','trauma','weight_loss','worry','writing','young_adult')
+for (i in badstrings) {
+  md$approaches <- str_replace_all(md$approaches, i, paste0("appr_", i))
+}
+
+badstrings <- c('co_appr_active_coaching','death_and_appr_bereavement_work','diplomat_appr_act','dying_appr_bereavement_counselor','mindfulness_and_appr_meditation')
+for (i in badstrings) {
+  md$approaches <- str_replace_all(md$approaches, i, paste0("appr_", i))
+}
+
+md$approaches <- string_replace(md$approaches, 'mindfulness', 'appr_mindfulness_based')
+md$approaches <- string_replace(md$approaches, 'meditation', 'appr_meditation')
+md$approaches <- string_replace(md$approaches, '_somatic', 'appr_somatic')
+md$approaches <- string_replace(md$approaches, 'cognitive', 'appr_cognitive_behavioral')
+
+#-------------------------------------------------------------
 # Replace certain characters in client_ethnicities
 
-# unique(md$client_ethnicities)
 library(tidyverse)
 md$client_ethnicities <- str_replace(md$client_ethnicities, '-', '_')
 md$client_ethnicities <- str_replace(md$client_ethnicities, ' and ', '_')
@@ -41,8 +124,9 @@ md$client_ethnicities <- str_replace(md$client_ethnicities, '^', 'ethn_')
 md$client_ethnicities <- str_replace_all(md$client_ethnicities, ', ', ', ethn_')
 # unique(md$client_ethnicities)
 
+#-------------------------------------------------------------
 # Replace certain characters in client_languages
-# unique(md$client_languages)
+
 md$client_languages <- str_replace(md$client_languages, 
                                    'Spanish, Spanish', 'Spanish')
 md$client_languages <- str_replace(md$client_languages, 
@@ -255,6 +339,7 @@ md$client_languages <- str_replace(md$client_languages, '^', 'lng_')
 md$client_languages <- str_replace_all(md$client_languages, ', ', ', lng_')
 # unique(md$client_languages)
 
+#-------------------------------------------------------------
 # Replace certain characters in client_religion
 
 # unique(md$client_religion)
@@ -264,6 +349,7 @@ md$client_religion <- str_replace(md$client_religion, '^', 'rel_')
 md$client_religion <- str_replace_all(md$client_religion, ', ', ', rel_')
 # unique(md$client_religion)
 
+#-------------------------------------------------------------
 # Cleaning up the license column and adding
 # a new column NYlicense (True or False)
 # table(md$license_state, useNA = 'ifany')
@@ -280,11 +366,13 @@ table(md$license_state, useNA = 'ifany')
 md$NYlicense <- md$license_state == 'NewYork'
 table(md$NYlicense, useNA = 'ifany')
 
+#-------------------------------------------------------------
 # Payment methods:
 md$payment_methods <- str_replace(md$payment_methods, 
                                   'xNotListed', 'paym_notlisted')
 
-# Per session:
+#-------------------------------------------------------------
+# Fee per session:
 # sort(unique(md$per_session))
 md$per_session <- str_replace(md$per_session, '\\+', '')
 md$per_session <- str_replace(md$per_session, 'upto100', '60')
@@ -310,6 +398,7 @@ md <- separate(md, per_session, c("fee_from", "fee_to"), remove = F, convert = T
 str(md$fee_from)
 str(md$fee_to)
 
+#-------------------------------------------------------------
 # Insurance Plans:
 length(unique(md$plans))
 length(md$plans[md$plans %in% 'xNotListed'])/nrow(md)  # 18% insurance not listed
@@ -333,12 +422,40 @@ md$plans <- str_replace(md$plans, 'ins__reduced_fee_available_on_a_limited_basis
 md$plans <- str_replace(md$plans, 'ins_invoices_provided_for_reinbursement', 'ins_out_of_network')
 md$plans <- str_replace(md$plans, 'ins_consolidated_health_plan_', 'ins_consolidated_health_plan')
 md$plans <- str_replace(md$plans, 'ins_call_for_exam_prices,', '')
+md$plans <- string_replace(md$plans, 'affinity', 'ins_affintiy')
+md$plans <- string_replace(md$plans, 'aetna', 'ins_aetna')
+md$plans <- string_replace(md$plans, 'aarp', 'ins_aarp')
+md$plans <- string_replace(md$plans, '_1199', 'ins_1199')
+md$plans <- string_replace(md$plans, 'out_of_network', 'ins_out_of_network')
+md$plans <- string_replace(md$plans, 'amida', 'ins_amidacare')
+md$plans <- string_replace(md$plans, 'anthem', 'ins_anthem')
+md$plans <- string_replace(md$plans, 'bc_bs', 'ins_bcbs')
+md$plans <- string_replace(md$plans, 'beacon', 'ins_beacon')
+md$plans <- string_replace(md$plans, 'blue_cross_blue_shield', 'ins_blue_cross_blue_shield')
+md$plans <- string_replace(md$plans, 'blue_shield', 'ins_blue_cross_blue_shield')
+md$plans <- string_replace(md$plans, 'chp', 'ins_chp')
+md$plans <- string_replace(md$plans, 'cigna', 'ins_cigna')
+md$plans <- string_replace(md$plans, 'compsych', 'ins_compsych')
+md$plans <- string_replace(md$plans, 'consolidated_health', 'ins_consolidated_health')
+md$plans <- string_replace(md$plans, 'devon', 'ins_ins_devon_health')
+md$plans <- string_replace(md$plans, 'eap', 'ins_eap')
+md$plans <- string_replace(md$plans, 'emblem_health', 'ins_emblem_health')
+md$plans <- string_replace(md$plans, 'empire_bcbs', 'ins_empire_bcbs')
+md$plans <- string_replace(md$plans, 'empire_bluecross', 'ins_empire_bcbs')
+md$plans <- string_replace(md$plans, 'fdny', 'ins_fdny')
+md$plans <- string_replace(md$plans, 'fidelis', 'ins_fidelis')
+md$plans <- string_replace(md$plans, 'galaxy', 'ins_galaxy')
+md$plans <- string_replace(md$plans, '_ghi_', 'ins_ghi')
+md$plans <- string_replace(md$plans, 'guardian', 'ins_guardian')
+md$plans <- string_replace(md$plans, 'healthfirst', 'ins_healthfirst')
+md$plans <- string_replace(md$plans, 'healthplus', 'ins_healthplus')
+md$plans <- string_replace(md$plans, 'magellan', 'ins_magellan_behavioral_health')
 
+#-------------------------------------------------------------
 # Creating a new variable insurance that is = 1 only
 # if a person accepts more than one insurance or
 # if it is just one insurance, then it's not 'ins_out_of_network'
 # and NOT 'ins_notlisted'
-nchar("ins_out_of_network")  # 18 characters
 more_than_one_insurance <- sapply(str_split(md$plans, pattern = ", "), length) > 1 
 only_one_insurance <- sapply(str_split(md$plans, pattern = ", "), length) == 1 
 out_of_network_instring <- str_extract(md$plans,'ins_out_of_network') %in% "ins_out_of_network"
@@ -349,7 +466,8 @@ md$insurance[more_than_one_insurance] <- 1
 md$insurance[only_one_insurance & !out_of_network_instring & !notlisted] <- 1
 count(md, insurance)
 
-# school
+#-------------------------------------------------------------
+# Cleaning schools they went to
 
 md$school[md$school == 'uni_-'] <- NA
 md$school[md$school == ''] <- NA
@@ -450,9 +568,13 @@ md$school_new[str_extract(md$school,'wurzweilier') %in% "wurzweilier"] <- "uni_y
 md$school_new[str_extract(md$school,'wurtzweiler') %in% "wurtzweiler"] <- "uni_yeshiva_university"
 md$school_new[md$school_new %in% ''] <- NA
 
-# specialties
-md$school_new[md$school_new %in% 'xNotListed'] <- "spec_NotListed"
+# View(sort(table(md$school_new, useNA = 'ifany')))
 
+#-------------------------------------------------------------
+# specialties
+md$specialties[md$specialties %in% 'xNotListed'] <- "spec_NotListed"
+
+#-------------------------------------------------------------
 # titles
 # table(md$titles, useNA = 'ifany')
 md$titles[md$titles %in% ''] <- NA
@@ -461,59 +583,225 @@ md$titles <- str_replace(md$titles, 'Clinical_Social_Work_Therapist, LCSW_R',
 md$titles <- str_replace(md$titles, '^', 'ttl_')
 md$titles <- str_replace_all(md$titles, ', ', ', ttl_')
 
+#-------------------------------------------------------------
 # year graduated:
 table(md$yeargrad, useNA = 'ifany')
 str(md$yeargrad)
 
+#-------------------------------------------------------------
 # years_in_practice
 table(md$years_in_practice, useNA = 'ifany')
 sort(unique(md$years_in_practice))
 md$years_in_practice <- str_replace(md$years_in_practice, '< 1 Year', '1')
 md$years_in_practice <- str_replace(md$years_in_practice, '< 2', '1.5')
 md$years_in_practice <- str_replace(md$years_in_practice, '1 Year', '1')
-
 md$years_in_practice <- str_replace(md$years_in_practice, '10\\+', '11')
 md$years_in_practice <- str_replace(md$years_in_practice, '15\\+', '17')
 md$years_in_practice <- str_replace(md$years_in_practice, '20\\+', '25')
 md$years_in_practice <- str_replace(md$years_in_practice, '30\\+', '37')
-
 md$years_in_practice[md$years_in_practice %in% ''] <- NA
 table(md$years_in_practice, useNA = 'ifany')
 str(md$years_in_practice)
 md$years_in_practice <- as.numeric(md$years_in_practice)
 
+#-------------------------------------------------------------
 md$zipcode <- paste0("US", as.character(md$zipcode))
 length(unique(md$zipcode))   # I have 230 zipcodes in my data
 
 #------------------------------------------------------
-# Function that spreads strings of one column
+# 2 Functions that spread strings in rows of one column
 # and creates dummy variable for each string
-# With string being the name of the new variable
+# With string itself becoming the nxame of the new variable
 #------------------------------------------------------
 
-# Need MY function, not this one:
-myspread = function(data, variable){
+# Function 1:
+myspread = function(mydata, variable){
   library(stringr)
-  df = data[variable]
-  split_list <- str_split(df[[variable]], ", ")
-  split_list  # the result is a list of strings
+  df <- mydata[variable]
+  split_list <- str_split(df[[variable]], ", ") 
+  # the result is a list of strings
   
   # Grab unique values of all strings:
   unique_strings <- sort(unique(unlist(split_list)))
-  unique_strings
-  
+  unique_strings <- unique_strings[!unique_strings %in% '']
+  unique_strings <- str_replace_all(unique_strings, ';$', '')
+  unique_strings <- str_replace_all(unique_strings, ',$', '')
+  unique_strings <- str_replace_all(unique_strings, '\\.', '')
+  unique_strings <- str_replace_all(unique_strings, '\\\\', '')
+  unique_strings <- str_replace_all(unique_strings, '"', '')
+  unique_strings <- str_replace_all(unique_strings, '\"', '')
+  unique_strings <- str_replace_all(unique_strings, '\\"', '')
+  unique_strings <- str_replace_all(unique_strings, '_$', '')
+  unique_strings <- str_replace_all(unique_strings, '\'', '')
+  unique_strings <- str_replace_all(unique_strings, ',_', '_')
+  unique_strings <- str_replace_all(unique_strings, '\\,_', '_')
+  unique_strings <- str_replace_all(unique_strings, '_,', '_')
+  unique_strings <- str_replace_all(unique_strings, '_\\,', '_')
+  unique_strings <- str_replace_all(unique_strings, ':$', '')
+  unique_strings <- str_replace_all(unique_strings, '\\*', '')
+  unique_strings <- str_replace_all(unique_strings, '%', '')
+  unique_strings <- str_replace_all(unique_strings, '\\(', '')
+  unique_strings <- str_replace_all(unique_strings, '\\)', '')
+  unique_strings <- str_replace_all(unique_strings, '$', '')  
+  unique_strings <- str_replace_all(unique_strings, '___', '_')
+  unique_strings <- str_replace_all(unique_strings, '__', '_')
+  unique_strings <- unique_strings[!unique_strings %in% '']
+  unique_strings <- unique_strings[!is.na(unique_strings)]
+
   # For each string in unique_strings create a variable with zeros:
   df[unique_strings] <- 0
-  
+
   # Replace a zero with a 1 in a column if that row contains that string:
-  for (row in 1:nrow(df)) {             # loop through rows
-    for (string in split_list[[row]]) { # split a string; populate relevant columns
-      df[row, string] <- 1
+  for (row in 1:nrow(df)) {         # loop through rows row=1 i
+    for (i in split_list[[row]]) {  # split a string; populate relevant columns
+      # print(i)
+      if (i %in% '') next
+      df[row, i] <- 1
     }
   }
-  df[-1]
+  df <- df[-1]
+  temp <- (colSums(df)/nrow(df) * 100) > 4  # I want only those with > 4%
+  temp[is.na(temp)] <- FALSE
+  df <- df[,temp]
+  df
 }
 
+# Function 2
+myspread_ethn = function(mydata, variable){
+  library(stringr)
+  df <- mydata[variable]
+  split_list <- str_split(df[[variable]], ", ") 
+  # the result is a list of strings
+  
+  # Grab unique values of all strings:
+  unique_strings <- sort(unique(unlist(split_list)))
+  unique_strings <- unique_strings[!unique_strings %in% '']
+  unique_strings <- str_replace_all(unique_strings, ';$', '')
+  unique_strings <- str_replace_all(unique_strings, ',$', '')
+  unique_strings <- str_replace_all(unique_strings, '\\.', '')
+  unique_strings <- str_replace_all(unique_strings, '\\\\', '')
+  unique_strings <- str_replace_all(unique_strings, '"', '')
+  unique_strings <- str_replace_all(unique_strings, '\"', '')
+  unique_strings <- str_replace_all(unique_strings, '\\"', '')
+  unique_strings <- str_replace_all(unique_strings, '_$', '')
+  unique_strings <- str_replace_all(unique_strings, '\'', '')
+  unique_strings <- str_replace_all(unique_strings, ',_', '_')
+  unique_strings <- str_replace_all(unique_strings, '\\,_', '_')
+  unique_strings <- str_replace_all(unique_strings, '_,', '_')
+  unique_strings <- str_replace_all(unique_strings, '_\\,', '_')
+  unique_strings <- str_replace_all(unique_strings, ':$', '')
+  unique_strings <- str_replace_all(unique_strings, '\\*', '')
+  unique_strings <- str_replace_all(unique_strings, '%', '')
+  unique_strings <- str_replace_all(unique_strings, '\\(', '')
+  unique_strings <- str_replace_all(unique_strings, '\\)', '')
+  unique_strings <- str_replace_all(unique_strings, '$', '')  
+  unique_strings <- str_replace_all(unique_strings, '\\.', '')
+  unique_strings <- str_replace_all(unique_strings, '/', '_')
+  unique_strings <- unique_strings[!unique_strings %in% '']
+  unique_strings <- str_replace_all(unique_strings, '___', '_')
+  unique_strings <- str_replace_all(unique_strings, '__', '_')
+  unique_strings <- unique_strings[!is.na(unique_strings)]
+    # For each string in unique_strings create a variable with zeros:
+  df[unique_strings] <- 0
+  # Replace a zero with a 1 in a column if that row contains that string:
+  for (row in 1:nrow(df)) {         # loop through rows row=1 i
+    for (i in split_list[[row]]) {  # split a string; populate relevant columns
+      # print(i)
+      if (i %in% '') next
+      if (is.na(i)) next
+      df[row, i] <- 1
+    }
+  }
+  df <- df[-1]
+  df
+}
 
-View((myspread(md, 'specialties')))
-View(md)
+#------------------------------------------------------
+
+# Casting approaches, specialties, etc. and adding new columns to my df:
+
+# Approaches:
+md <- cbind(md, myspread(md, 'approaches'))
+
+# Client ethnicities:
+temp <- myspread_ethn(md, 'client_ethnicities')
+temp <- select(temp, -ethn_X)
+md <- cbind(md, temp)
+
+# Client languages:
+temp <- myspread_ethn(md, 'client_languages')
+temp <- select(temp, -lng_X)
+colsums <- (colSums(temp)/nrow(temp) * 100) > 0.05  # I want only those with > 0.5%
+colsums[is.na(colsums)] <- FALSE
+temp <- temp[,colsums]
+md <- cbind(md, temp)
+
+# Client religions:
+temp <- myspread_ethn(md, 'client_religion')
+temp <- select(temp, -rel_X)
+md <- cbind(md, temp)
+
+# Client Insurance plans:
+temp <- myspread_ethn(md, 'plans')
+temp <- select(temp, -ins_out_of_network, -ins_notlisted)
+colsums <- (colSums(temp)/nrow(temp) * 100) > 0.5  # I want only those with > 0.5%
+colsums[is.na(colsums)] <- FALSE
+temp <- temp[,colsums]
+md <- cbind(md, temp)
+
+# Titles:
+temp <- myspread_ethn(md, 'titles')
+names(temp)
+
+temp$ttl_LCSW <- temp$ttl_lcsw + temp$ttl_Lcsw + temp$ttl_LCSw + temp$ttl_LCSW +
+                 temp$ttl_LCSWNJ + temp$ttl_LCSW.1 + temp$ttl_LCSW_C +
+                 temp$ttl_LCSW_PR + temp$ttl_lcsw_R + temp$ttl_LCSW_R +
+                 temp$ttl_LCSW_S + temp$ttl_LCSWBCD + temp$ttl_lcswr +
+                 temp$ttl_LCSWR
+
+temp$ttl_lcsw <- NULL
+temp$ttl_Lcsw <- NULL
+temp$ttl_LCSw <- NULL
+temp$ttl_LCSWNJ <- NULL
+temp$ttl_LCSW.1 <- NULL
+temp$ttl_LCSW_C <- NULL
+temp$ttl_LCSW_PR <- NULL
+temp$ttl_lcsw_R <- NULL
+temp$ttl_LCSW_R <- NULL
+temp$ttl_LCSW_S <- NULL
+temp$ttl_LCSWBCD <- NULL
+temp$ttl_lcswr <- NULL
+temp$ttl_LCSWR <- NULL
+
+temp$ttl_CASAC <- temp$ttl_CASAC + temp$ttl_CASAC_T
+temp$ttl_CASAC_T <- NULL
+
+temp$ttl_PhD <- temp$ttl_PhD + temp$ttl_PHD
+temp$ttl_PHD <- NULL
+
+temp$ttl_Psychiatric_Nurse <- temp$ttl_Psychiatric_Nurse + temp$ttl_Psychiatric_Nurse_Practitioner
+temp$ttl_Psychiatric_Nurse_Practitioner <- NULL
+
+colsums <- (colSums(temp)/nrow(temp) * 100) > 0.3  # I want only those with > 0.4
+colsums[is.na(colsums)] <- FALSE
+temp <- temp[,colsums]
+colsums[is.na(colsums)] <- FALSE
+md <- cbind(md, temp)
+
+# Specialties
+temp <- myspread_ethn(md, 'specialties')
+temp <- select(temp, -spec_NotListed)
+colsums <- (colSums(temp)/nrow(temp) * 100) > 0.1  # I want only those with > 0.1%
+colsums[is.na(colsums)] <- FALSE
+temp <- temp[,colsums]
+md <- cbind(md, temp)
+
+# Issues
+temp <- myspread_ethn(md, 'issues')
+temp <- select(temp, -xNotListed)
+colsums <- (colSums(temp)/nrow(temp) * 100) > 0.1  # I want only those with > 0.1%
+colsums[is.na(colsums)] <- FALSE
+temp <- temp[,colsums]
+md <- cbind(md, temp)
+
+write.csv(md, "x Scraped Data Cleaned.csv", row.names = F, na = '')
