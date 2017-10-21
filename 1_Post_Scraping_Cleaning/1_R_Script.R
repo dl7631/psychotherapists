@@ -395,8 +395,10 @@ md$per_session <- str_replace(md$per_session, 'upto50', '50')
 md$per_session <- str_replace(md$per_session, 'upto70', '70')
 md$per_session[md$per_session == ''] <- NA
 md <- separate(md, per_session, c("fee_from", "fee_to"), remove = F, convert = T)
+md$fee_to[is.na(md$fee_to)] <- md$fee_from[is.na(md$fee_to)] 
 str(md$fee_from)
 str(md$fee_to)
+# md[1:20, c("per_session", "fee_from", "fee_to")]
 
 #-------------------------------------------------------------
 # Insurance Plans:
@@ -803,5 +805,32 @@ colsums <- (colSums(temp)/nrow(temp) * 100) > 0.1  # I want only those with > 0.
 colsums[is.na(colsums)] <- FALSE
 temp <- temp[,colsums]
 md <- cbind(md, temp)
+rm(temp)
+
+# Adding variable years since graduation:
+md$years_since_graduation <- 2017 - md$yeargrad
+
+# Fixing approach variables:
+library(stringr)
+md$appr_NotListed <- NULL
+appr_appr_vars <- names(md)[grep('^appr_appr', names(md))]
+names(md)[names(md) %in% appr_appr_vars] <- 
+  str_replace_all(appr_appr_vars, 'appr_appr_', 'appr_')
+names(md)[names(md) %in% "appr_eappr_mdr"] <- "appr_emdr"
+names(md)[names(md) %in% "appr_art_appr_therapy"] <- "appr_art_therapy"
+names(md)[names(md) %in% "appr_hypnoappr_therapy"] <- "appr_hypnotherapy"
+names(md)[names(md) %in% "appr_acceptance_and_commitment_appr_therapy"] <- 
+         "appr_acceptance_and_commitment_therapy"
+names(md)[names(md) %in% "appr_play_appr_therapy"] <- "appr_play_therapy"
+appr_vars <- names(md)[grep('^appr_', names(md))]
+
+# Removing columns we don't need anymore:
+library(tidyverse)
+dim(md)
+md <- md %>% select(-approaches, -atherapist, -client_ethnicities,
+                    -client_languages, -client_religion, -issues,
+                    -license, -payment_methods, -per_session, -plans,
+                    -school, -specialties, -titles, -yeargrad, -iss_other)
+dim(md)
 
 write.csv(md, "x Scraped Data Cleaned.csv", row.names = F, na = '')
