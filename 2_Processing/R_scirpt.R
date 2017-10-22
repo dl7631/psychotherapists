@@ -37,6 +37,16 @@ issuesvars <- names(md)[grep("^iss_", names(md))]
 # Focusing on New York city as a whle - across zip codes
 #---------------------------------------------------------------------------
 
+
+mycor <- cor(md[c("fee_from", "fee_to", "insurance",
+                  "sliding", "years_in_practice",
+                  "years_since_graduation")],
+             use = "complete.obs")
+# The only interesting thing:
+# Therapist who charge more, are less likely
+# to take insurance and accept sliding scale
+
+
 ##########################################
 # Patient Ages:
 
@@ -86,6 +96,12 @@ md %>% summarize(mean(fee_from, na.rm = T), mean(fee_to, na.rm = T))
 # from $135 to $199 if mean
 md %>% summarize(median(fee_from, na.rm = T), median(fee_to, na.rm = T))
 # from $130 to $200 if median
+md %>% summarize(max(fee_from, na.rm = T), max(fee_to, na.rm = T))
+# $500 to $500 if max
+md %>% summarize(min(fee_from, na.rm = T), min(fee_to, na.rm = T))
+# $500 to $500 if max
+
+write.csv(byzip, "x test.csv")
 
 ##########################################
 # Sliding scale - 
@@ -124,11 +140,13 @@ ggsave('Plot Subgroups Subs.wmf', plot = pat_subs_plot)
 ##########################################
 # Years in practice
 years_practice_plot <- ggplot(md, aes(years_in_practice)) +
-  geom_histogram(fill = "#E55A00") +
+  geom_histogram(fill = "#E55A00", bins = 40) +
   xlim(0, 44) + theme_bw() +
   ggtitle("Years in Practice") +
   xlab("Years in practice") +
-  ylab("Number of therapists")
+  ylab("Number of therapists") +
+  scale_x_continuous(limits = c(0, 42),
+    breaks = seq(0, 45, by = 3))
 ggsave('Plot Years in Practice.wmf', plot = years_practice_plot)
 
 ##########################################
@@ -156,7 +174,7 @@ sum(md$years_since_graduation < 21 & !is.na(md$years_since_graduation)) /
 sum(md$years_since_graduation < 11 & !is.na(md$years_since_graduation)) /
   sum(!is.na(md$years_since_graduation))
 
-# 10% graduated 5 or fewer years ago
+# 10.5% graduated 5 or fewer years ago
 sum(md$years_since_graduation < 6 & !is.na(md$years_since_graduation)) /
   sum(!is.na(md$years_since_graduation))
 
@@ -214,12 +232,13 @@ str(schools)
 schools_plot <- ggplot(schools[1:22,], aes(reorder(school, percent), percent)) +
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
-  ggtitle("Schools Therapists Graduated From ") +
+  ggtitle("22 Schools Most Therapists Graduated From ") +
   xlab(NULL) +
   ylab("% of therapists") + coord_flip() +
   scale_y_continuous(breaks = seq(0, 18, 1)) +
-  theme(axis.text.y = element_text(size = 7))
-ggsave('Plot Schools they are from.wmf', plot = schools_plot)
+  theme(axis.text.y = element_text(size = 10))
+ggsave('Plot Schools they are from.wmf', 
+       plot = schools_plot, height = 6)
 
 ##########################################
 # Approaches to the therapy
@@ -240,7 +259,7 @@ appr_percents_top <- ggplot(appr_percents[1:15,],
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
   ggtitle("15 Most Popular Therapeutic Approaches") +
-  xlab("Approaches") +
+  xlab(NULL) +
   ylab("% of therapists") +
   scale_y_continuous(breaks = seq(0, 70, by = 5)) +
   coord_flip()
@@ -253,7 +272,7 @@ appr_percents_bottom <- ggplot(appr_percents[22:36,],
   theme_bw() +
   theme(plot.title = element_text(size = 12)) +
   ggtitle("15 Less Popular Therapeutic Approaches") +
-  xlab("Approaches") +
+  xlab(NULL) +
   ylab("% of therapists") +
   scale_y_continuous(breaks = seq(0, 10, by = 1)) +
   coord_flip()
@@ -273,16 +292,17 @@ dim(lng_percents) # 42
 # View(lng_percents)
 
 # Top 15 Languages out of top 42
-lng_percents_top <- ggplot(lng_percents[1:15,], 
+lng_percents_top <- ggplot(lng_percents[1:20,], 
                            aes(reorder(Languages, percent), percent)) +
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
-  ggtitle("15 Languages (besides English) Most Therapists Speak") +
+  ggtitle("20 Languages (besides English) Most Therapists Speak") +
   xlab("Languages") +
   ylab("% of therapists who speak") +
   scale_y_continuous(breaks = seq(0, 12, by = 1)) +
   coord_flip()
-ggsave('Plot Languages Top 15.wmf', plot = lng_percents_top)
+ggsave('Plot Languages Top 20.wmf', plot = lng_percents_top,
+       height = 5)
 
 # Top 42 Languages
 lng_percents_top42 <- ggplot(lng_percents, 
@@ -322,7 +342,7 @@ ins_percents_top <- ggplot(ins_percents[1:15,],
                            aes(reorder(Insurances, percent), percent)) +
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
-  ggtitle("15 Insurance Plans Accepted by Most Therapist") +
+  ggtitle("15 Insurance Plans Accepted by Most Therapists") +
   xlab("Insurance Plans") +
   ylab("% of therapists who accept") +
   scale_y_continuous(breaks = seq(0, 35, by = 5)) +
@@ -350,7 +370,7 @@ ttl_percents_top <- ggplot(ttl_percents[1:15,],
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
   ggtitle("15 Most Frequently Used Therapist Titles") +
-  xlab("Titles") +
+  xlab(NULL) +
   ylab("% of therapists who used it in their ad") +
   scale_y_continuous(breaks = seq(0, 50, by = 5)) +
   coord_flip()
@@ -375,11 +395,22 @@ spec_percents_top <- ggplot(spec_percents[1:20,],
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
   ggtitle("Specialties of Most Therapists") +
-  xlab("Specialties") +
+  xlab(NULL) +
   ylab("% of therapists who select") +
   scale_y_continuous(breaks = seq(0, 55, by = 5)) +
   coord_flip()
 ggsave('Plot Specialties Top 20.wmf', plot = spec_percents_top)
+
+spec_percents_bottom <- ggplot(spec_percents[49:68,], 
+                            aes(reorder(Specialties, percent), percent)) +
+  geom_bar(stat = 'identity', fill = "#E55A00") +
+  theme_bw() +
+  ggtitle("Less Popular Specialties") +
+  xlab(NULL) +
+  ylab("% of therapists who select")  +
+  coord_flip()
+ggsave('Plot Specialties Bottom 20.wmf', plot = spec_percents_bottom)
+
 
 ##########################################
 # Issues
@@ -401,19 +432,19 @@ iss_percents_top <- ggplot(iss_percents[1:20,],
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
   ggtitle("20 Issues Most Therapists Specialize in") +
-  xlab("Issues") +
+  xlab(NULL) +
   ylab("% of therapists who specialize in it") +
   scale_y_continuous(breaks = seq(0, 70, by = 5)) +
   coord_flip()
 ggsave('Plot Issues Top 20.wmf', plot = iss_percents_top, height = 5)
 
 # Bottom 20 Issues
-iss_percents_bottom <- ggplot(iss_percents[79:98,], 
+iss_percents_bottom <- ggplot(iss_percents[77:96,], 
                            aes(reorder(Issues, percent), percent)) +
   geom_bar(stat = 'identity', fill = "#E55A00") +
   theme_bw() +
-  ggtitle("20 Less Popular Areas (from top 100)") +
-  xlab("Issues") +
+  ggtitle("20 Less Popular Issues (from top 100)") +
+  xlab(NULL) +
   ylab("% of therapists who specialize in it") +
   scale_y_continuous(breaks = seq(0, 4, by = 1)) +
   coord_flip()
@@ -471,7 +502,8 @@ plot_n_hh <- ggplot(byzip, aes(hh_count/1000, n)) +
 ggsave('Plot Zips HH vs. n of Therapists.wmf', plot = plot_n_hh)
 
 # Plot with dot color being the median income:
-plot_colored_n_hh <- ggplot(byzip, 
+# View(byzip %>% select(median_income) %>% arrange(desc(median_income)))
+plot_colored_n_hh <- ggplot(byzip[!byzip$median_income %in% 260000,], 
                             aes(hh_count/1000, n,
                                 color = median_income)) +
   geom_point(position = "jitter") +   # "#E55A00"
@@ -481,7 +513,7 @@ plot_colored_n_hh <- ggplot(byzip,
   theme_bw() +
   scale_x_continuous(breaks = seq(0, 45, by = 5)) +
   scale_y_continuous(breaks = seq(0, 700, by = 100)) +
-  scale_color_gradient(low = "yellow", high = "red", name = 'Median Income')
+  scale_color_gradient(low = "yellow", high = "darkred", name = 'Median Income')
 ggsave('Plot Zips HH vs. n of Therapists COLORED.wmf', plot = plot_colored_n_hh)
 
 
@@ -520,10 +552,10 @@ plot_income_hh_col <- ggplot(byzip, aes(median_income/1000, n,
   theme_bw() +
   scale_x_continuous(breaks = seq(0, 260, by = 20)) +
   scale_y_continuous(breaks = seq(0, 700, by = 100)) +
-  scale_color_gradient(low = "yellow", high = "red", name = 'HH count')
+  scale_color_gradient(low = "yellow", high = "darkred", name = 'HH count')
 ggsave('Plot Zips Income vs. n of Therapists COLORED.wmf', plot = plot_income_hh_col)
 
-# Correlation is a bit higher when both are logged: 0.50
+# Correlation is a bit higher when both are logged: 0.51
 cor(log(byzip$n), log(byzip$median_income))
 
 plot_income_hh_log <- ggplot(byzip, aes(log(median_income), log(n))) +
@@ -580,15 +612,14 @@ plot(gvisScatterChart(forscatter1_zip, options = my_options))
 cor(byzip$median_income, byzip$fee_from)  # 0.44
 cor(byzip$median_income, byzip$fee_to)    # 0.31
 
-
-plot_total_income_fee <- ggplot(byzip, aes(median_income/1000, n)) +
+plot_total_income_fee <- ggplot(byzip, aes(median_income/1000, fee_from)) +
   geom_point(color = "#E55A00", position = "jitter") +
   ggtitle("Total Median Income vs. Session Fee ('from')") +
   xlab("Median Income") +
   ylab("Session Fee ('from')") +
   theme_bw() +
-  scale_x_continuous(breaks = seq(0, 350, by = 50)) +
-  scale_y_continuous(breaks = seq(0, 700, by = 100))
+  scale_x_continuous(breaks = seq(0, 270, by = 30)) +
+  scale_y_continuous(breaks = seq(50, 200, by = 10))
 ggsave('Plot Zips Median Income vs. Session Fee.wmf', plot = plot_total_income_fee)
 
 ##########################################
