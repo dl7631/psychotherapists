@@ -678,8 +678,50 @@ zip_density_bottom <- ggplot(temp[c(144:153),],
 ggsave('Plot Zipcodes w. Fewest Therapists.wmf', plot = zip_density_bottom,
        width = 7, height = 5)
 
+
+#############################################
+# Coloring NYC zipcodes by therapist density
+
+names(byzip)
+library(stringr)
+library(tidyverse)
+mynyczips <- byzip[c("zipcode", "n_per_1000")]
+View(byzip$n_per_1000)
+dim(mynyczips) # 153 rows
+mynyczips$zipcode <- str_replace(mynyczips$zipcode, "US", "")
+names(mynyczips) <- c('region', 'density')
+
+# Joining my zips and therapist density with df_zip_demographics:
+df_zip_demographics <- left_join(df_zip_demographics, 
+                                 mynyczips, by = 'region')
+dim(df_zip_demographics)
+names(df_zip_demographics)
+sum(!is.na(df_zip_demographics$density))  # 153
+df_zip_demographics$value = df_zip_demographics$density
+
+unique(df_zip_demographics$county)
+zip.regions$county.fips.numeric
+
+# Creating the map
+
+zip_map = ZipChoropleth$new(df_zip_demographics)
+zip_map$ggplot_polygon = geom_polygon(aes(fill = value), 
+                                      color = NA) +
+  # scale_fill_brewer(palette = 'Oranges')
+  scale_fill_gradient(low = '#ffffd4', high = '#993404')
+zip_map$set_zoom_zip(state_zoom  = NULL, 
+                     county_zoom = c('36005', '36061', '36047',
+                                     '36081', '36085'), 
+                     msa_zoom    = NULL, 
+                     zip_zoom    = NULL) 
+zip_map$title = "Therapist Density in NYC"
+zip_map$legend = "# of Therapists/1000 HHs"
+# zip_map$set_num_colors(5)
+choro = zip_map$render()
+choro
+
 #---------------------------------------------------------------------------
-# Dendrogram of top 3 specialties
+# Dendrogram of top 3 specialties (not used in presentation)
 #---------------------------------------------------------------------------
 library(stringr)
 MyMatrix <- as.matrix(md[specialtyvars])
@@ -708,8 +750,3 @@ row.names(temp) <- str_replace_all(row.names(temp), "_", " ")
 dim(temp)
 hc <- hclust(dist(temp))
 plot(as.phylo(hc), cex = 0.9, label.offset = 1)
-#---------------------------------------------------------------------------
-# Focusing on a couple of zipcodes
-#---------------------------------------------------------------------------
-
-write.csv(byzip[c("zipcode", "median_income")], 'x_ test.csv')
