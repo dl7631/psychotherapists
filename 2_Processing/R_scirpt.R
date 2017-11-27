@@ -412,6 +412,29 @@ spec_percents_bottom <- ggplot(spec_percents[49:68,],
 ggsave('Plot Specialties Bottom 20.wmf', plot = spec_percents_bottom)
 
 
+md["spec_life_coaching"][1:10,]
+specialtyvars
+md$license_state
+
+temp <- md[c("spec_life_coaching","license_state")]
+View(temp)
+temp$newyork <- as.numeric(temp$license_state %in% "NewYork")
+
+forbar <- as.tibble(t(t(table(temp[c("spec_life_coaching", "newyork")])[2,])))
+forbar$License <- c("Absent", "Present")
+names(forbar)[1] <- "LifeCoaching"
+forbar <- forbar[c(2,1)]
+forbar[[2]] <- round(forbar[[2]]/c(615,12014)*100,1)
+chisq.test(temp$spec_life_coaching, temp$newyork)
+
+life_coach <- ggplot(forbar, aes(License, LifeCoaching)) + 
+  geom_bar(stat = 'identity', fill = "#e55A00")+  
+  ggtitle("% of Therapists with Life Coaching Speciality") +
+  theme_bw() +
+  xlab("NY State License") +
+  ylab("% of therapists")
+ggsave('Plot Life Coaching.jpeg', plot = life_coach)
+
 ##########################################
 # Issues
 
@@ -722,6 +745,68 @@ densitymap <- choro + scale_fill_brewer(palette = 'OrRd') +
 ggsave('Therapist Density in NYC.wmf', plot = densitymap)
 
 #---------------------------------------------------------------------------
+# Specialties vs. median income
+#---------------------------------------------------------------------------
+
+names(byzip)
+View(byzip[specialtyvars])
+temp <- byzip[c("zipcode", "median_income", specialtyvars)]
+temp <- temp %>% arrange(-median_income)
+dim(temp)  # 153 zipcodes
+head(select(temp, zipcode, median_income),20)  # median income > 100,000
+View(tail(select(temp, zipcode, median_income),23)) # med incom < 35,000
+View(temp[131:153,c("zipcode", "median_income")])
+
+library(stringr)
+temp[issuesvars]
+spec_percents_rich <- round(colMeans(temp[1:20,specialtyvars]) * 100, 1)
+spec_percents_rich <- tibble(Specialties = specialtyvars,
+                       percent = spec_percents_rich)
+spec_percents_rich <- arrange(spec_percents_rich, desc(percent))
+spec_percents_rich$Specialties <- str_replace_all(spec_percents_rich$Specialties,
+                                       'spec_', '')
+spec_percents_rich$Specialties <- str_replace_all(spec_percents_rich$Specialties,
+                                       '_', ' ')
+dim(spec_percents_rich) # 68
+
+
+# Top 20 Issues among 20 rich zipcodes: 
+spec_percents_rich_top <- ggplot(spec_percents_rich[1:20,], 
+                           aes(reorder(Specialties, percent), percent)) +
+  geom_bar(stat = 'identity', fill = "#E55A00") +
+  theme_bw() +
+  ggtitle("20 Richest Zipcodes: Top Specialties") +
+  xlab(NULL) +
+  ylab("% of therapists who specialize in it") +
+  scale_y_continuous(limits = c(0, 55), breaks = seq(0, 55, by = 5)) +
+  coord_flip()
+ggsave('Plot Specialties Top 20 - Rich Zips.jpeg', plot = spec_percents_rich_top, height = 5)
+
+# The poorest 23 zipcodes
+spec_percents_poor <- round(colMeans(temp[131:153,specialtyvars]) * 100, 1)
+spec_percents_poor <- tibble(Specialties = specialtyvars,
+                             percent = spec_percents_poor)
+spec_percents_poor <- arrange(spec_percents_poor, desc(percent))
+spec_percents_poor$Specialties <- str_replace_all(spec_percents_poor$Specialties,
+                                                  'spec_', '')
+spec_percents_poor$Specialties <- str_replace_all(spec_percents_poor$Specialties,
+                                                  '_', ' ')
+dim(spec_percents_poor) # 68
+
+# Top 20 Issues among 23 poorest zipcodes: 
+spec_percents_poor_top <- ggplot(spec_percents_poor[1:20,], 
+                                 aes(reorder(Specialties, percent), percent)) +
+  geom_bar(stat = 'identity', fill = "#E55A00") +
+  theme_bw() +
+  ggtitle("23 Poorest Zipcodes: Top Specialties") +
+  xlab(NULL) +
+  ylab("% of therapists who specialize in it") +
+  scale_y_continuous(limits = c(0, 55), breaks = seq(0, 55, by = 5)) +
+  coord_flip()
+ggsave('Plot Specialties Top 20 - Poor Zips.jpeg', plot = spec_percents_poor_top, height = 5)
+
+
+#---------------------------------------------------------------------------
 # Dendrogram of top 3 specialties (not used in presentation)
 #---------------------------------------------------------------------------
 library(stringr)
@@ -751,3 +836,5 @@ row.names(temp) <- str_replace_all(row.names(temp), "_", " ")
 dim(temp)
 hc <- hclust(dist(temp))
 plot(as.phylo(hc), cex = 0.9, label.offset = 1)
+
+# write.csv(byzip, "x byzip.csv")
